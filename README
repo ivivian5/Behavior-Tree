@@ -1,0 +1,142 @@
+Assignment: A1 Behavior Trees - Vacuum Cleaning Robot's Roamings
+Author: Vivian Lau (vlau02)
+Date: 10.02.2023
+-----------------------------------------------------------------------------------
+How to Run:
+-----------------------------------------------------------------------------------
+    python3 main.py
+(Note) needs user input 3 times for starting battery level, request for spot
+cleaning and request for general cleaning.
+
+-----------------------------------------------------------------------------------
+Assumptions:
+-----------------------------------------------------------------------------------
+    Environment does not change when robot is in the middle 
+    of a task (dusty spot sensor will not sense or change)
+    ............................................................................... 
+    Battery is sufficient at 70%
+    ............................................................................... 
+    Docking is considered "docking and charging" aka dock will 
+    be in RUNNING state until robot is sufficiently charged
+    ............................................................................... 
+    User will only request spot clean or general clean 
+    when robot first starts
+    ............................................................................... 
+    User will not change their desire to request a spot clean 
+    or general cleaning after starting robot
+    ............................................................................... 
+    Robot can go home on 0% battery
+
+-----------------------------------------------------------------------------------
+Files:
+-----------------------------------------------------------------------------------
+        behavior_tree.py - Represents the behaviors of the vacuum cleaning robot
+    ............................................................................... 
+        globals.py - Contains all the variable keys of the environment utilized 
+                by the vacuum cleaning robot
+    ...............................................................................
+        main.py - Runs the simulation of the robot by controlling the environment 
+                that is sent to an instance of a blackboard and behavior tree.
+    -------------------------------------------------------------------------------
+    Conditions:
+    -------------------------------------------------------------------------------
+        battery_less_than_30.py - inherits the Condition class and succeeds if the
+                battery of the robot is currently less than 30.
+    ...............................................................................
+        dusty_spot.py - inherits the Condition class and succeeds if the sensor for
+                dusty spot is triggered
+    ...............................................................................
+        spot_check.py - inherits the Condtion class and succeeds if a spot cleaning
+                has be requested
+    ...............................................................................
+        general_clean_check.py - inherits the Condition class and succeeds if a 
+                general cleaning has be requested
+    -------------------------------------------------------------------------------
+    Tasks:
+    -------------------------------------------------------------------------------
+        dock.py - inherits the Task class and returns running until sufficiently
+                charged. Assumes docking action as "docking and charging."
+    ...............................................................................
+        find_home.py - inherits the Task class and stores the path to home under
+                the corresponding environment variable.
+    ...............................................................................
+        go_home.py - inherits the Task class and returns success if there is a
+                home path found to take. Assumes the robot can go back home
+                regardless of how much battery level it has.
+    ...............................................................................
+        clean_spot.py - inherits the Task class, prints out confirmation of
+                cleaning spot, and always returns as success.
+    ...............................................................................
+        done_spot.py - inherits the Task class, clears out the cleaning spot
+                request, and always returns as success.
+    ...............................................................................
+        clean_floor.py - inherits the Task class, prints out confirmation of
+                cleaning floor, and returns as success unless the environment
+                variable depicts the floor being all clean.
+    ...............................................................................
+        done_general.py - inherits the Task class, clears out general cleaning
+                request, and always returns as success.
+    ...............................................................................
+        do_nothing.py - inherits the Task class, prints out confirmation of
+                doing nothing, and always returns as success.
+    -------------------------------------------------------------------------------
+    Composite Aggregators:
+    -------------------------------------------------------------------------------
+        priority.py - inherits the Composite class and fails once any of the
+                children node fails. Always runs children in order of priority
+                which is assumed to be the order in which they are entered i.e.
+                the 0th index child being the highest priority and increasing
+                indices decreases in priority.
+    ...............................................................................
+        sequence.py - inherits the Composite class and fails once any of the
+                children node fails. Also returns to evaluating child if left off
+                from previous process.
+    -------------------------------------------------------------------------------
+    Decorators:
+    -------------------------------------------------------------------------------
+        until_fail.py - inherits the Decorator class and repeatedly runs the given 
+                child node until it fails
+    -------------------------------------------------------------------------------
+    Given in bt_library:
+    -------------------------------------------------------------------------------
+        __init__.py - used when importing bt_library and all its functions for use
+    ...............................................................................
+        blackboard.py - contains the representation of the vacuum cleaning robot by
+                storing all the the environmental variables and states of all the 
+                nodes in a behavior tree.
+    ...............................................................................
+        common.py - defines common types, possible resulting states from a
+                evaluation and information keys.
+    ...............................................................................
+        composite.py - base class for composite type nodes, 
+                handles the running of the child nodes given.
+    ...............................................................................
+        condition.py - base class for condition type nodes.
+    ...............................................................................
+        decorator.py - base class for decorator type nodes.
+    ...............................................................................
+        selection.py - inherits the Composite class and runs the given child nodes
+                in the given order. Only fails once all child nodes fails and
+                returns to child node if left off as running from a previous 
+                process
+    ...............................................................................
+        task.py - base class for task type nodes.
+    ...............................................................................
+        timer.py - inherits the Decorator class and runs the child node for a
+                given number of seconds.
+    ...............................................................................
+        tree_node.py - base class for all nodes in the behavior tree.
+
+-----------------------------------------------------------------------------------
+Solution Structure: (as written in main)
+*Behavior Tree is implemented just as given diagram in assignment instructions
+    1. Prompts user for starting battery level
+    2. Prompts user for wanting to request a spot cleaning
+    3. Prompts user for wanting to request a general cleaning
+    4. (repeat steps 5-9 until no more tasks running and requests all done)
+    5. Updates dusty spot sensor if robot is not in middle of running processes
+    6. Evaluates tree and print out relevant environment information
+    7. Simulate change in battery level
+    8. Simulate change in floor cleaning percentage
+    9. Check if tasks are all done and requests for running tasks are all done
+-----------------------------------------------------------------------------------
